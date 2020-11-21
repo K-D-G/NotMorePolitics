@@ -1,0 +1,24 @@
+.masthead{
+  height: 50vh;
+  min-height: 500px;
+  background-image: url('/static?path=images/logo.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.nav>li>a:hover{
+  background-color: #d63f3a;/*#047bfe;*/
+  border-radius: 15%;
+}
+
+/*.search-bar{
+  margin-left: auto;
+  margin-right: 0;
+}*/
+
+html, body{
+  height:100%;
+  margin: 0;
+  padding: 0;
+}

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  {% include 'static/html/default_includes/links.html' %}
+  <title>NMP|{article_title}</title>
+  {% include 'static/html/default_includes/meta.html' %}
+</head>
+<body>
+  {% include 'static/html/default_includes/header.html' %}
+  {% include 'static/html/default_includes/navigation.html' %}
+  <div id="main">
+  {% include 'articles/'~article_id~'/'~article_id~'.html'}
+  </div>
+  {% include 'static/html/default_includes/footer.html' %}
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  {% include 'static/html/default_includes/links.html' %}
+  <title>NMP|Articles</title>
+
+  {% include 'static/html/default_includes/meta.html' %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.min.js" integrity="sha512-WIklPM6qPCIp6d3fSSr90j+1unQHUOoWDS4sdTiR8gxUTnyZ8S2Mr8e10sKKJ/bhJgpAa/qG068RDkg6fIlNFA==" crossorigin="anonymous"></script>
+  <script src="/static?path=js/political_compass.js"></script>
+</head>
+<body>
+  {% include 'static/html/default_includes/header.html' %}
+  {% include 'static/html/default_includes/navigation.html' %}
+  <div id="main" class="row align-items-center">
+    <div id="compass_div" style="margin-left:auto; margin-right:auto;"></div>
+  </div>
+  <div class="row align-items-center">
+    <div class="col-sm-6">
+      {% for article in articles %}
+      {% if article.category=='auth-left' %}
+        {% set colour='danger' %}
+      {% elif article.category=='auth-right' %}
+        {% set colour='primary' %}
+      {% elif article.category=='lib-left' %}
+        {% set colour='success' %}
+      {% elif article.category=='lib-right' %}
+        {% set colour='warning'%}
+      {% endif %}
+      <div class="card text-white bg-{{colour}}" style="width: 18rem;">
+        <img class="card-img-top" src="/database-articles?path={{article.id}}/cover_image.png" alt="{{article.title}}">
+        <div class="card-body">
+          <h5 class="card-title">{{article.title}}</h5>
+          <img style="float:left;" src="/database-authors?path={{article.author_id}}/profile_picture.png">
+          <h6 class="card-subtitle mb-2 text-muted">{{author_names[loop.index]}}</h6>
+          <p class="card-text" style="clear:both;">{{article.summary}}</p>
+          <a href="/articles/{article.id}" class="btn btn-primary">Read</a>
+        </div>
+      </div>
+  {% if loop.index%2==0 %}
+    </div>
+  </div>
+  <div class="row align-items-center">
+    <div class="col-sm-6">
+  {% endfor %}
+  </div>
+  </div>
+  {% include 'static/html/default_includes/footer.html' %}
+</body>
+</html>

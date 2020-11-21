@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  {% include 'static/html/default_includes/links.html' %}
+  <title>NMP|{{(policy_name.replace('_', ' '))|title}}</title>
+
+  {% include 'static/html/default_includes/meta.html' %}
+</head>
+<body>
+  {% include 'static/html/default_includes/header.html' %}
+  {% include 'static/html/default_includes/navigation.html' %}
+  <div id="main">
+  {% include 'static/html/policies/%s.html'%policy_name %}
+  </div>
+  {% include 'static/html/default_includes/footer.html' %}
+</body>
+</html>
