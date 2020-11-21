@@ -9,4 +9,4 @@
 - ## Way of getting articles, author profiles uploaded, edited and deleted from the site
 - ## The search box thing
 - ## About page
-- ## Git repository
+- ## Git repository ✅
