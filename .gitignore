@@ -1,0 +1,60 @@
+#Add ignores for your platform if it isn't here
+#(Specific Linux distributions)
+
+#Python general ignores
+__pycache__/
+*.py[cod]
+*$py.class
+
+*.sqlite
+
+instance/
+.webassets-cache
+
+pip-log.txt
+pip-delete-this-directory.txt
+
+#Apple ignores
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+#Windows ignores
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+
+
+*.stackdump
+
+
+[Dd]esktop.ini
+
+
+$RECYCLE.BIN/
+
+
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+
+*.lnk
