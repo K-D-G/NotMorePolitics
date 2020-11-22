@@ -3,6 +3,8 @@ from singletons import*
 db=Database.get()
 
 class Article(db.Model):
+    __searchable__=['title', 'category', 'subject', 'summary']
+
     id=db.Column(db.Text, primary_key=True)
     title=db.Column(db.Text, unique=False, nullable=False)
     category=db.Column(db.Text, unique=False, nullable=False) #Auth-Right etc

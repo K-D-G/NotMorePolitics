@@ -9,6 +9,8 @@ class FlaskApp:
     def get():
         if not FlaskApp.instance:
             FlaskApp.instance=Flask(NAME) #Main instance for the application
+            FlaskApp.instance.config['WHOOSH_BASE']='database/whoosh'
+            FlaskApp.instance.config['WHOOSH_BASE']='database/whoosh'
             FlaskApp.instance.secret_key=SECRET_KEY #For encryption etc
         return FlaskApp.instance
 

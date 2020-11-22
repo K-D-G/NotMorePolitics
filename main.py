@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, send_from_directory, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import sqlalchemy_elasticquery
+import whooshalchemy.flask_whooshalchemy as whooshalchemy
 from sqlalchemy import func
 from singletons import*
 from constants import*
@@ -12,6 +13,9 @@ import json
 #SQLAlchemy deals with SQL injection for us so we don't need to worry
 app=FlaskApp.get()
 database=Database.get()
+whooshalchemy.whoosh_index(app, Article)
+
+LIMIT=10
 
 @app.route('/static', methods=["GET"])
 def static_serve():
@@ -31,16 +35,31 @@ def index():
 @app.route('/authors')
 def authors():
     try:
-        name=request.args.get('name')
-        page_number=int(requests.arg.get('page_number'))
+        page_number=int(request.args.get('page_number'))
+        if page_number>0:
+            page_number-=1 #So that we count properly
     except:
-        return redirect('/404')
-    if name:
-        arg='{"filter": {"or": {"name": {"like": "%s"}}}}'%name
-        authors=sqlalchemy_elasticquery.elastic_query(Author, arg).offset(page_number).limit(10).all()
+        page_number=0
+    if request.args.get('name'):
+        authors=Author.query.whoosh_search(request.args.get('name'))
+        max=authors.count()
+        if page_number*LIMIT>max+(LIMIT-1):
+            return redirect(f'/authors?name={request.args.get("name")}&page_number={max/LIMIT}')
+        if max-LIMIT<page_number*LIMIT<max+(LIMIT-1):
+            no_next=True
+        else:
+            no_next=False
+        authors=authors.offset(page_number*LIMIT).limit(LIMIT).all()
     else:
-        authors=Author.query.offset(page_number).limit(10).all()
-    return render_template('static/html/authors.html', authors=authors)
+        max=Author.query.count()
+        if page_number*LIMIT>max+(LIMIT-1):
+            return redirect(f'/authors?page_number={max/LIMIT}')
+        if max-LIMIT<page_number*LIMIT<max+(LIMIT-1):
+            no_next=True
+        else:
+            no_next=False
+        authors=Author.query.offset(page_number*LIMIT).limit(LIMIT).all()
+    return render_template('static/html/authors.html', authors=authors, query=request.args.get('name'), page_number=page_number, no_next=no_next)
 
 @app.route('/authors/<string:id>')
 def load_author(id):
@@ -51,38 +70,36 @@ def load_author(id):
 
 @app.route('/articles')
 def articles():
-    '''
-    category=request.args.get('category')
-    if category:
-        articles=Article.query.filter_by(category=category).order_by(func.random()).limit(10).all()
-    else:
-        articles=Article.query.limit(10).all()
-    '''
     try:
-        query={}
-        if request.args.get('title'):
-            query['title']={'like':request.args.get('title')}
-        if request.args.get('category'):
-            query['category']={'like':request.args.get('category')}
-        if request.args.get('subject'):
-            query['subject']={'like':request.args.get('subject')}
-        if request.args.get('author'):
-            query['author_id']=Author.query.filter_by(name=request.args.get('author')).first()
-        empty_query=(query=={})
-        arg={'filter':{'or':query}}
-        page_number=int(requests.arg.get('page_number'))
+        page_number=int(request.args.get('page_number'))
+        if page_number>0:
+            page_number-=1
     except:
-        return redirect('/404')
+        page_number=0
+    query=None
+    if request.args.get('category'):
+        query=Article.query.filter_by(category=request.args.get('category'))
+    if request.args.get('author'):
+        query=query.filter_by(author=request.args.get('author'))
+    if request.args.get('search'):
+        query=query.whoosh_search(request.args.get('search'))
+    if not query:
+        query=Article.query
 
-    if not empty_query:
-        articles=sqlalchemy_elasticquery.elastic_query(Article, json.dumps(arg)).offset(page_number).limit(10).all()
-    else:
-        articles=Article.query.offset(page_number).limit(10).all()
+    no_next=True
+
+    articles=query.offset(page_number*LIMIT).limit(LIMIT).all()
+
+    #Fix/Update the search functions on author and here
+    #Then do other stuff
+    #Socialism is where the government does stuff
+
+    category=request.args.get('category') if request.args.get('category') else ''
 
     author_names=[]
     for i in range(len(articles)):
         author_names.append(Article.query.filter_by(id=articles[i].id).first())
-    return render_template('static/html/articles.html', articles=articles, author_names=author_names)
+    return render_template('static/html/articles.html', current_category=category, no_next=no_next, page_number=page_number, articles=articles, author_names=author_names)
 
 @app.route('/articles/<string:id>')
 def load_article(id):

@@ -14,21 +14,40 @@
   <div id="main" class="row align-items-center">
     <div id="compass_div" style="margin-left:auto; margin-right:auto;"></div>
   </div>
-  {set length=articles|length}
+
+  <form class="form-inline mr-auto justify-content-center" action="/articles" method="get">
+    <div class="input-group">
+      <input type="hidden" name="category" value="{{current_category}}">
+      <input type="text" class="form-control" placeholder="Search Articles" name="query">
+      <div class="input-group-append">
+        <button class="btn btn-primary" type="submit">
+          <i class="fa fa-search"></i>
+        </button>
+      </div>
+    </div>
+  </form>
+  <div style="height:2.5%;"></div>
+
+  {% set length=0 %}
+  {% if articles|length %}
+    {length=articles|length}
+  {% endif %}
   {% if length%2!=0 %}
     {length-=1}
   {% endif %}
-  {% for i in range(length)%}
+
+  {% for i in range(length) %}
   <div class="row align-items-center">
     <div class="col-sm-6">
+      {% set colour='primary' %}
       {% if articles[i].category=='auth-left' %}
-        {% set colour='danger' %}
+        { colour='danger' }
       {% elif articles[i].category=='auth-right' %}
-        {% set colour='primary' %}
+        { colour='primary' }
       {% elif articles[i].category=='lib-left' %}
-        {% set colour='success' %}
+        { colour='success' }
       {% elif articles[i].category=='lib-right' %}
-        {% set colour='warning' %}
+        { colour='warning' }
       {% endif %}
       <div class="card text-white bg-{{colour}}" style="width: 18rem;">
         <img class="card-img-top" src="/database-articles?path={{articles[i].id}}/cover_image.png" alt="{{articles[i].title}}">
@@ -42,14 +61,15 @@
       </div>
     </div>
     <div class="col-sm-6">
+      {% set colour='primary' %}
       {% if articles[i+1].category=='auth-left' %}
-        {% set colour='danger' %}
+        { colour='danger' }
       {% elif articles[i+1].category=='auth-right' %}
-        {% set colour='primary' %}
+        { colour='primary' }
       {% elif articles[i+1].category=='lib-left' %}
-        {% set colour='success' %}
+        { colour='success' }
       {% elif articles[i+1].category=='lib-right' %}
-        {% set colour='warning' %}
+        { colour='warning' }
       {% endif %}
       <div class="card text-white bg-{{colour}}" style="width: 18rem;">
         <img class="card-img-top" src="/database-articles?path={{articles[i+1].id}}/cover_image.png" alt="{{articles[i+1].title}}">
@@ -67,14 +87,15 @@
   {% if articles|length%2!=0 %}
   <div class="row-align-items-center">
     <div class="col-sm-6">
+      {% set colour='primary' %}
       {% if articles[articles|length-1].category=='auth-left' %}
-        {% set colour='danger' %}
+        { colour='danger' }
       {% elif articles[articles|length-1].category=='auth-right' %}
-        {% set colour='primary' %}
+        { colour='primary' }
       {% elif articles[articles|length-1].category=='lib-left' %}
-        {% set colour='success' %}
+        { colour='success' }
       {% elif articles[articles|length-1].category=='lib-right' %}
-        {% set colour='warning' %}
+        { colour='warning' }
       {% endif %}
       <div class="card text-white bg-{{colour}}" style="width: 18rem;">
         <img class="card-img-top" src="/database-articles?path={{articles[articles|length-1].id}}/cover_image.png" alt="{{articles[articles|length-1].title}}">
@@ -89,6 +110,21 @@
     </div>
   </div>
   {% endif %}
+
+  <ul class="pagination justify-content-center">
+    {% if page_number==0 %}
+      <li class="page-item disabled"><a href="#" class="page-link">Previous</a></li>
+    {%else%}
+      <li class="page-item"><a href="/authors{{current_category}}&page_number={{page_number-1}}" class="page-link">Previous</a></li>
+    {% endif %}
+
+    {% if no_next %}
+      <li class="page-item disabled "><a href="#" class="page-link">Next</a></li>
+    {%else%}
+      <li class="page-item"><a href="/authors?category={{current_category}}&page_number={{page_number+1}}" class="page-link">Next</a></li>
+    {% endif %}
+  </ul>
+
   {% include 'static/html/default_includes/footer.html' %}
 </body>
 </html>

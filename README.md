@@ -1,7 +1,7 @@
 # TODO
 
-- ## Articles page
-  * Add in stuff for the other filters
+- ## Articles page ✅
+  * Add in stuff for the other filters ✅
 - ## Authors page
   * Filter by name
   * Better pages for individual author
