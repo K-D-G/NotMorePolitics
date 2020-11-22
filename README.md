@@ -15,3 +15,7 @@
   - Install MySQL https://dev.mysql.com/doc/mysql-osx-excerpt/5.7/en/osx-installation-pkg.html
   - Convert the code to use MySQL https://stackoverflow.com/questions/27766794/switching-from-sqlite-to-mysql-with-flask-sqlalchemy
   - Implement UUID's
+
+
+#nmpfreespeechproject@gmail.com
+#n07M0R3p455w0rd5!
