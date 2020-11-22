@@ -14,7 +14,6 @@
 from __future__ import with_statement
 from __future__ import absolute_import
 
-
 import flask_sqlalchemy as flask_sqlalchemy
 
 import sqlalchemy
@@ -36,10 +35,13 @@ __searchable__ = '__searchable__'
 
 DEFAULT_WHOOSH_INDEX_NAME = 'whoosh_index'
 
+
+# handle unicode type in Python 3
 try:
     unicode
 except NameError:
     unicode = str
+
 
 class _QueryProxy(flask_sqlalchemy.BaseQuery):
     # We're replacing the model's ``query`` field with this proxy. The main
@@ -57,8 +59,9 @@ class _QueryProxy(flask_sqlalchemy.BaseQuery):
         # whoosh query was performed.
         self._whoosh_rank = None
 
+    '''
     def __iter__(self):
-        ''' Reorder ORM-db results according to Whoosh relevance score. '''
+        #Reorder ORM-db results according to Whoosh relevance score. 
 
         super_iter = super(_QueryProxy, self).__iter__()
 
@@ -83,6 +86,7 @@ class _QueryProxy(flask_sqlalchemy.BaseQuery):
                 yield heapq.heappop(ordered_by_whoosh_rank)[1]
 
         return _inner()
+    '''
 
     def whoosh_search(self, query, limit=None, fields=None, or_=False):
         '''
@@ -168,16 +172,6 @@ def whoosh_index(app, model):
     return app.whoosh_indexes.get(model.__name__,
                 _create_index(app, model))
 
-def _get_analyzer(app, model):
-    analyzer = getattr(model, '__analyzer__', None)
-
-    if not analyzer and app.config.get('WHOOSH_ANALYZER'):
-        analyzer = app.config['WHOOSH_ANALYZER']
-
-    if not analyzer:
-        analyzer = StemmingAnalyzer()
-
-    return analyzer
 
 def _create_index(app, model):
     # a schema is created based on the fields of the model. Currently we only
@@ -196,8 +190,7 @@ def _create_index(app, model):
     wi = os.path.join(app.config.get('WHOOSH_BASE'),
             model.__name__)
 
-    analyzer = _get_analyzer(app, model)
-    schema, primary_key = _get_whoosh_schema_and_primary_key(model, analyzer)
+    schema, primary_key = _get_whoosh_schema_and_primary_key(model)
 
     if whoosh.index.exists_in(wi):
         indx = whoosh.index.open_dir(wi)
@@ -217,11 +210,10 @@ def _create_index(app, model):
     return indx
 
 
-def _get_whoosh_schema_and_primary_key(model, analyzer):
+def _get_whoosh_schema_and_primary_key(model):
     schema = {}
     primary = None
     searchable = set(model.__searchable__)
-
     for field in model.__table__.columns:
         if field.primary_key:
             schema[field.name] = whoosh.fields.ID(stored=True, unique=True)
@@ -231,7 +223,8 @@ def _get_whoosh_schema_and_primary_key(model, analyzer):
                 (sqlalchemy.types.Text, sqlalchemy.types.String,
                     sqlalchemy.types.Unicode)):
 
-            schema[field.name] = whoosh.fields.TEXT(analyzer=analyzer)
+            schema[field.name] = whoosh.fields.TEXT(
+                    analyzer=StemmingAnalyzer())
 
     return Schema(**schema), primary
 
@@ -275,3 +268,11 @@ def _after_flush(app, changes):
 
 
 flask_sqlalchemy.models_committed.connect(_after_flush)
+
+
+# def init_app(db):
+#     app = db.get_app()
+# #    for table in db.get_tables_for_bind():
+#     for item in globals():
+#
+#        #_create_index(app, table)

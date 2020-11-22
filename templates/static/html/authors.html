@@ -10,7 +10,6 @@
   {% include 'static/html/default_includes/header.html' %}
   {% include 'static/html/default_includes/navigation.html' %}
 
-
   <form class="form-inline mr-auto justify-content-center" action="/authors" method="get">
     <div class="input-group">
       <input type="text" class="form-control" placeholder="Search Authors" name="name">
@@ -23,16 +22,10 @@
   </form>
   <div style="height:2.5%;"></div>
 
-  {% set length=0 %}
-  {% if articles|length %}
-    {length=articles|length}
-  {% endif %}
-  {% if length%2!=0 %}
-    {length-=1}
-  {% endif %}
-  {% for i in range(length) %}
-  <div class="row align-items-center">
-    <div class="col-sm-6">
+  {% set length=authors|length%}
+  {% for i in range(length-1) %}
+  <div class="row justify-content-center">
+    <div class="col-4 d-flex justify-content-center">
       <div class="card text-dark bg-white" style="width: 18rem;">
         <img class="card-img-top" src="/database-authors?path={{authors[i].id}}/profile_picture.png" alt="{{authors[i].name}}">
         <div class="card-body">
@@ -41,7 +34,7 @@
         </div>
       </div>
     </div>
-    <div class="col-sm-6">
+    <div class="col-4 d-flex justify-content-center">
       <div class="card text-dark bg-white" style="width: 18rem;">
         <img class="card-img-top" src="/database-authors?path={{authors[i+1].id}}/profile_picture.png" alt="{{authors[i+1].name}}">
         <div class="card-body">
@@ -53,8 +46,8 @@
   </div>
   {% endfor %}
   {% if authors|length%2!=0 %}
-  <div class="row-align-items-center">
-    <div class="col-sm-6">
+  <div class="row justify-content-center">
+    <div class="col-4 d-flex justify-content-center">
       <div class="card text-dark bg-white" style="width: 18rem;">
         <img class="card-img-top" src="/database-authors?path={{authors[authors|length-1].id}}/profile_picture.png" alt="{{authors[authors|length-1].name}}">
         <div class="card-body">
@@ -65,8 +58,9 @@
     </div>
   </div>
   {% endif %}
+  <div style="height:2.5%;"></div>
   <ul class="pagination justify-content-center">
-    {% if page_number==0 %}
+    {% if page_number==1 %}
       <li class="page-item disabled"><a href="#" class="page-link">Previous</a></li>
     {%else%}
       <li class="page-item"><a href="/authors?name={{query}}&page_number={{page_number-1}}" class="page-link">Previous</a></li>

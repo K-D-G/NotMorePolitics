@@ -9,9 +9,88 @@
   {% include 'static/html/default_includes/header.html' %}
   {% include 'static/html/default_includes/navigation.html' %}
 
-  <div id="body">
+  {% set length={'flag':articles|length} %}
+  {% if length.flag%2!=0 %}
+    {length.flag-=1}
+  {% endif %}
+  {% set length=length.flag%}
 
+  {% for i in range(length-1) %}
+  <div class="row align-items-center">
+    <div class="col-sm-6">
+      {% set colour='primary' %}
+      {% if articles[i].category=='auth-left' %}
+        { colour='danger' }
+      {% elif articles[i].category=='auth-right' %}
+        { colour='primary' }
+      {% elif articles[i].category=='lib-left' %}
+        { colour='success' }
+      {% elif articles[i].category=='lib-right' %}
+        { colour='warning' }
+      {% endif %}
+      <div class="card text-white bg-{{colour}}" style="width: 18rem;">
+        <img class="card-img-top" src="/database-articles?path={{articles[i].id}}/cover_image.png" alt="{{articles[i].title}}">
+        <div class="card-body">
+          <h5 class="card-title">{{articles[i].title}}</h5>
+          <img style="float:left;" src="/database-authors?path={{articles[i].author_id}}/profile_picture.png">
+          <h6 class="card-subtitle mb-2 text-muted">{{author_names[i]}}</h6>
+          <p class="card-text" style="clear:both;">{{articles[i].summary}}</p>
+          <a href="/articles/{articles[i].id}" class="btn btn-primary">Read</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      {% set colour='primary' %}
+      {% if articles[i+1].category=='auth-left' %}
+        { colour='danger' }
+      {% elif articles[i+1].category=='auth-right' %}
+        { colour='primary' }
+      {% elif articles[i+1].category=='lib-left' %}
+        { colour='success' }
+      {% elif articles[i+1].category=='lib-right' %}
+        { colour='warning' }
+      {% endif %}
+      <div class="card text-white bg-{{colour}}" style="width: 18rem;">
+        <img class="card-img-top" src="/database-articles?path={{articles[i+1].id}}/cover_image.png" alt="{{articles[i+1].title}}">
+        <div class="card-body">
+          <h5 class="card-title">{{articles[i+1].title}}</h5>
+          <img style="float:left;" src="/database-authors?path={{articles[i+1].author_id}}/profile_picture.png">
+          <h6 class="card-subtitle mb-2 text-muted">{{author_names[i+1]}}</h6>
+          <p class="card-text" style="clear:both;">{{articles[i+1].summary}}</p>
+          <a href="/articles/{articles[i+1].id}" class="btn btn-primary">Read</a>
+        </div>
+      </div>
+    </div>
   </div>
+  {% endfor %}
+  {% if articles|length%2!=0 %}
+  <div class="row-align-items-center">
+    <div class="col-sm-6">
+      {% set colour='primary' %}
+      {% if articles[articles|length-1].category=='auth-left' %}
+        { colour='danger' }
+      {% elif articles[articles|length-1].category=='auth-right' %}
+        { colour='primary' }
+      {% elif articles[articles|length-1].category=='lib-left' %}
+        { colour='success' }
+      {% elif articles[articles|length-1].category=='lib-right' %}
+        { colour='warning' }
+      {% endif %}
+      <div class="card text-white bg-{{colour}}" style="width: 18rem;">
+        <img class="card-img-top" src="/database-articles?path={{articles[articles|length-1].id}}/cover_image.png" alt="{{articles[articles|length-1].title}}">
+        <div class="card-body">
+          <h5 class="card-title">{{articles[articles|length-1].title}}</h5>
+          <img style="float:left;" src="/database-authors?path={{articles[articles|length-1].author_id}}/profile_picture.png">
+          <h6 class="card-subtitle mb-2 text-muted">{{author_names[articles|length-1]}}</h6>
+          <p class="card-text" style="clear:both;">{{articles[articles|length-1].summary}}</p>
+          <a href="/articles/{articles[articles|length-1].id}" class="btn btn-primary">Read</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  <div style="height:2.5%;"></div>
+
   {% include 'static/html/default_includes/footer.html' %}
 </body>
 </html>

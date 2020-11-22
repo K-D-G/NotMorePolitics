@@ -28,15 +28,13 @@
   </form>
   <div style="height:2.5%;"></div>
 
-  {% set length=0 %}
-  {% if articles|length %}
-    {length=articles|length}
+  {% set length={'flag':articles|length} %}
+  {% if length.flag%2!=0 %}
+    {length.flag-=1}
   {% endif %}
-  {% if length%2!=0 %}
-    {length-=1}
-  {% endif %}
+  {% set length=length.flag%}
 
-  {% for i in range(length) %}
+  {% for i in range(length-1) %}
   <div class="row align-items-center">
     <div class="col-sm-6">
       {% set colour='primary' %}
@@ -110,9 +108,10 @@
     </div>
   </div>
   {% endif %}
+  <div style="height:2.5%;"></div>
 
   <ul class="pagination justify-content-center">
-    {% if page_number==0 %}
+    {% if page_number==1 %}
       <li class="page-item disabled"><a href="#" class="page-link">Previous</a></li>
     {%else%}
       <li class="page-item"><a href="/authors{{current_category}}&page_number={{page_number-1}}" class="page-link">Previous</a></li>

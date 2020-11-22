@@ -13,9 +13,8 @@ import json
 #SQLAlchemy deals with SQL injection for us so we don't need to worry
 app=FlaskApp.get()
 database=Database.get()
-whooshalchemy.whoosh_index(app, Article)
-
-LIMIT=10
+#whooshalchemy.whoosh_index(app, Article)
+#whooshalchemy.whoosh_index(app, Author)
 
 @app.route('/static', methods=["GET"])
 def static_serve():
@@ -30,36 +29,21 @@ def database_serve_authors():
 
 @app.route('/')
 def index():
-    return render_template('static/html/index.html')
+    articles=Article.query.order_by(Article.reads).limit(RESULTS_LIMIT).all()
+    return render_template('static/html/index.html', articles=articles)
 
 @app.route('/authors')
 def authors():
     try:
         page_number=int(request.args.get('page_number'))
-        if page_number>0:
-            page_number-=1 #So that we count properly
     except:
-        page_number=0
+        page_number=1
     if request.args.get('name'):
         authors=Author.query.whoosh_search(request.args.get('name'))
-        max=authors.count()
-        if page_number*LIMIT>max+(LIMIT-1):
-            return redirect(f'/authors?name={request.args.get("name")}&page_number={max/LIMIT}')
-        if max-LIMIT<page_number*LIMIT<max+(LIMIT-1):
-            no_next=True
-        else:
-            no_next=False
-        authors=authors.offset(page_number*LIMIT).limit(LIMIT).all()
     else:
-        max=Author.query.count()
-        if page_number*LIMIT>max+(LIMIT-1):
-            return redirect(f'/authors?page_number={max/LIMIT}')
-        if max-LIMIT<page_number*LIMIT<max+(LIMIT-1):
-            no_next=True
-        else:
-            no_next=False
-        authors=Author.query.offset(page_number*LIMIT).limit(LIMIT).all()
-    return render_template('static/html/authors.html', authors=authors, query=request.args.get('name'), page_number=page_number, no_next=no_next)
+        authors=Author.query
+    authors=authors.paginate(page_number, RESULTS_LIMIT, True)
+    return render_template('static/html/authors.html', authors=authors.items, query=request.args.get('name'), page_number=page_number, no_next=(len(authors.items)<RESULTS_LIMIT))
 
 @app.route('/authors/<string:id>')
 def load_author(id):
@@ -72,40 +56,29 @@ def load_author(id):
 def articles():
     try:
         page_number=int(request.args.get('page_number'))
-        if page_number>0:
-            page_number-=1
     except:
-        page_number=0
-    query=None
+        page_number=1
+    articles=Article.query
     if request.args.get('category'):
-        query=Article.query.filter_by(category=request.args.get('category'))
-    if request.args.get('author'):
-        query=query.filter_by(author=request.args.get('author'))
+        articles=Article.query.filter_by(category=request.args.get('category'))
     if request.args.get('search'):
-        query=query.whoosh_search(request.args.get('search'))
-    if not query:
-        query=Article.query
-
-    no_next=True
-
-    articles=query.offset(page_number*LIMIT).limit(LIMIT).all()
-
-    #Fix/Update the search functions on author and here
-    #Then do other stuff
-    #Socialism is where the government does stuff
+        articles=articles.whoosh_search(request.args.get('search'))
+    articles=articles.paginate(page_number, RESULTS_LIMIT, True)
 
     category=request.args.get('category') if request.args.get('category') else ''
 
     author_names=[]
-    for i in range(len(articles)):
+    for i in range(len(articles.items)):
         author_names.append(Article.query.filter_by(id=articles[i].id).first())
-    return render_template('static/html/articles.html', current_category=category, no_next=no_next, page_number=page_number, articles=articles, author_names=author_names)
+    return render_template('static/html/articles.html', current_category=category, no_next=(len(articles.items)<RESULTS_LIMIT), page_number=page_number, articles=articles.items, author_names=author_names)
 
 @app.route('/articles/<string:id>')
 def load_article(id):
     article=Article.query.filter_by(id=id).first()
     if not article:
         return redirect('/404')
+    article.reads+=1
+    db.session.commit()
     return render_template(f'static/html/article.html', article_id=article.id, article_title=article.title)
 
 @app.route('/about')
@@ -131,6 +104,15 @@ def todo():
         return markdown.markdown(f.read())
 #============TEMPORARY==========#
 
+def add_example_data():
+    names=['Bob', 'Kieran', 'People', 'Jeff']
+    for i in names:
+        db.session.add(Author(name=i))
+    db.session.commit()
+
 if __name__=='__main__':
     db.create_all()
+    add_example_data()
+    whooshalchemy.whoosh_index(app, Article)
+    whooshalchemy.whoosh_index(app, Author)
     app.run(debug=True, host='0.0.0.0', port=5000)
