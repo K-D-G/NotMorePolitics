@@ -15,3 +15,4 @@ SQLALCHEMY_TRACK_MODIFICATIONS=True #Tell SQLAlchemy that we don't want to know 
 SECRET_KEY=b'\xf5\xba67\x10a?H\x18\xb20w\xd8\x06\x8f\xc9\x9a\xe1\xe4A\xc6?w\xcf'
 
 RESULTS_LIMIT=10
+BCRYPT_ROUNDS=6

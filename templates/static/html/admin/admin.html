@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  {% include 'static/html/default_includes/links.html' %}
+  {% include 'static/html/default_includes/meta.html' %}
+</head>
+<body id="admin_login_page" class="text-center">
+  <div style="height:10%;"></div>
+  <div class="container justify-content-center">
+    <img class="mb-4" src="/static?path=images/logo.png" alt="" width="100" height="100">
+    <h1 class="h3 mb-3 font-weight-normal">{{user.username}}</h1>
+    <div class="btn-group-vertical text-white">
+        <button class="btn btn-lg btn-primary btn-block" onclick="window.location.href='/admin?option=upload'">Upload Article</button>
+        <button class="btn btn-lg btn-warning btn-block" onclick="/admin?option=edit">Edit Article</button>
+        <button class="btn btn-lg btn-danger btn-block" onclick="/admin?option=delete">Delete Article</button>
+
+        <button class="btn btn-lg btn-primary btn-block" onclick="window.location.href='/admin/logout';">Logout</button>
+    </div>
+  </div>
+</body>
+</html>

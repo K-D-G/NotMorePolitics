@@ -1,17 +1,14 @@
 from singletons import*
 from sqlalchemy_utils import UUIDType
+from flask_login import UserMixin
 import uuid
 
 db=Database.get()
 
-class Author(db.Model):
-    __tablename__='authors'
-    __searchable__=['id', 'name']
+class Admin(db.Model, UserMixin):
+    __tablename__='admins'
+
     id=db.Column(db.Integer, primary_key=True)
     #id=db.Column(UUIDType(binary=False), primary_key=True) #Convert to for MySQL: https://stackoverflow.com/questions/183042/how-can-i-use-uuids-in-sqlalchemy
-    name=db.Column(db.Text, unique=False, nullable=False)
-    email=db.Column(db.Text, unique=True, nullable=False)
-
-    def __init__(self, name, email):
-        self.name=name
-        self.email=email
+    username=db.Column(db.Text, unique=False, nullable=False)
+    password=db.Column(db.Text, unique=False, nullable=False)

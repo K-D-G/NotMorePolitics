@@ -1,5 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from flask_bcrypt import Bcrypt
 from constants import*
 
 class FlaskApp:
@@ -24,3 +26,22 @@ class Database:
             FlaskApp.get().config["SQLALCHEMY_TRACK_MODIFICATIONS"]=SQLALCHEMY_TRACK_MODIFICATIONS
             Database.instance=SQLAlchemy(FlaskApp.get())
         return Database.instance
+
+class FlaskLogin:
+    instance=None
+    def __init__(self):
+        FlaskLogin.get()
+    def get():
+        if not FlaskLogin.instance:
+            FlaskLogin.instance=LoginManager()
+            FlaskLogin.instance.init_app(FlaskApp.get())
+        return FlaskLogin.instance
+
+class FlaskPasswordHasher:
+    instance=None
+    def __init__(self):
+        FlaskPasswordHasher.get()
+    def get():
+        if not FlaskPasswordHasher.instance:
+            FlaskPasswordHasher.instance=Bcrypt(FlaskApp.get())
+        return FlaskPasswordHasher.instance

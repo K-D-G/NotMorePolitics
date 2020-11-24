@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, send_from_directory, redirect, url_for
+from flask import Flask, render_template, request, send_from_directory, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import current_user, login_user, logout_user, login_required
 import sqlalchemy_elasticquery
 import whooshalchemy.flask_whooshalchemy as whooshalchemy
 from sqlalchemy import func
@@ -7,12 +8,16 @@ from singletons import*
 from constants import*
 from database.author import*
 from database.article import*
+from database.admin import*
+import utils
 import markdown
 import json
+import random
 
 #SQLAlchemy deals with SQL injection for us so we don't need to worry
 app=FlaskApp.get()
 database=Database.get()
+login_manager=FlaskLogin.get()
 #whooshalchemy.whoosh_index(app, Article)
 #whooshalchemy.whoosh_index(app, Author)
 
@@ -97,6 +102,48 @@ def not_found(e):
 def internal_error(e):
     return render_template('static/html/error_pages/500.html'), 500
 
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if current_user.is_authenticated:
+        return redirect(url_for('admin'))
+    if request.method=='POST':
+        username=request.form['username']
+        password=request.form['password']
+
+        admin=Admin.query.filter_by(username=username).first()
+        admins=Admin.query.all()
+        if admin and utils.check_password(password, admin.password):
+            login_user(admin)
+            return redirect(url_for('admin'))
+        flash({'type':'danger', 'message':'Invalid credentials'})
+        return redirect(url_for('admin_login'))
+    return render_template('static/html/admin/admin_login.html')
+
+@app.route('/admin/logout')
+def admin_logout():
+    logout_user()
+    return redirect(url_for('admin_login'))
+
+@app.route('/admin')
+@login_required
+def admin():
+    return render_template('static/html/admin/admin.html', user=current_user)
+
+@login_manager.user_loader
+def load_user(id):
+    if id is not None:
+        return Admin.query.get(int(id))
+    return None
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    return redirect(url_for('admin_login'))
+
+def add_admin(username, password):
+    db.session.add(Admin(username=username, password=utils.hash_password(password)))
+    db.session.commit()
+
 #============TEMPORARY==========#
 @app.route('/todo')
 def todo():
@@ -107,12 +154,13 @@ def todo():
 def add_example_data():
     names=['Bob', 'Kieran', 'People', 'Jeff']
     for i in names:
-        db.session.add(Author(name=i))
+        db.session.add(Author(name=i, email=i+str(random.randint(0, 100))+'@example.com'))
     db.session.commit()
 
 if __name__=='__main__':
     db.create_all()
+    add_admin('Kieran', '1234')
     add_example_data()
     whooshalchemy.whoosh_index(app, Article)
     whooshalchemy.whoosh_index(app, Author)
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=DEBUG, host='0.0.0.0', port=PORT)
