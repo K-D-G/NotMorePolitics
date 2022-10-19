@@ -1,11 +1,5 @@
 DEBUG=True
 
-'''
-if DEBUG:
-    PORT=5000
-else:
-    PORT=80
-'''
 NAME="NotMorePolitics"
 PORT=5000 if DEBUG else 80
 BASE_URL='http://127.0.0.1:5000' if DEBUG else '' #Add production URL

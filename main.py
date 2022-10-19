@@ -149,13 +149,13 @@ def add_admin(username, password):
 def todo():
     with open('README.md', 'r', encoding='utf-8') as f:
         return markdown.markdown(f.read())
-#============TEMPORARY==========#
 
 def add_example_data():
     names=['Bob', 'Kieran', 'People', 'Jeff']
     for i in names:
         db.session.add(Author(name=i, email=i+str(random.randint(0, 100))+'@example.com'))
     db.session.commit()
+#============TEMPORARY==========#
 
 if __name__=='__main__':
     db.create_all()

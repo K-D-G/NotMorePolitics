@@ -1,38 +1,12 @@
-'''
-import asyncore
-from smtpd import SMTPServer
-class EmailServer(SMTPServer):
-    def process_message(self, peer, mailfrom, rcpttos, data):
-        print('You got mail')
-
-def run():
-    email_server=EmailServer(('localhost', 25), None)
-    print('Doing stuff')
-    try:
-        asyncore.loop()
-    except KeyboardInterrupt:pass
-
-if __name__=='__main__':
-    print('Starting to do stuff')
-    run()
-    print('Hello World')
-'''
-
 import email
+import smtp
 import imaplib
-#import smtp
 from imaplib import IMAP4_SSL
 import sys
 from email.mime.text import MIMEText
 from email.parser import HeaderParser
 from email.policy import default
-
-IMAP_SERVER='imap.gmail.com'
-IMAP_SERVER_PORT=993
-
-EMAIL_ACCOUNT='nmpfreespeechproject@gmail.com'
-EMAIL_PASSWORD='n07M0R3p455w0rd5!'
-EMAIL_FOLDER='INBOX'
+from credentials import*
 
 class EmailClient:
     def __init__(self):
@@ -78,4 +52,4 @@ class EmailClient:
             #print('The sender is {}'.format(sender))
 
 if __name__=='__main__':
-    thing=EmailClient()
+    client=EmailClient()
